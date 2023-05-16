@@ -1,7 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Uint128};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
 use crate::{state::{ContractInfo, Bid, Bundle, Order}, interfaces::ContractSupportResponse};
 
@@ -12,6 +10,9 @@ pub struct InstantiateMsg {
     pub bundle_fee: u16,
     pub game_market_payment_contract: Addr,
 }
+
+#[cw_serde]
+pub struct MigrateMsg {}
 
 #[cw_serde]
 pub enum ExecuteMsg {

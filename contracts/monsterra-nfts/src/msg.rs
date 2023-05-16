@@ -2,7 +2,6 @@ use cosmwasm_schema::cw_serde;
 use cosmwasm_schema::QueryResponses;
 use cw721_base::MinterResponse;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
 use cosmwasm_std::Binary;
 use cw721::Expiration;
