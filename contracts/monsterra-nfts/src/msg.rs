@@ -12,7 +12,7 @@ use cw721_base::QueryMsg as CW721QueryMsg;
 
 use crate::state::TransferLog;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq)]
+#[cw_serde]
 pub struct MonsterraNFTMigrateMsg {}
 
 #[cw_serde]

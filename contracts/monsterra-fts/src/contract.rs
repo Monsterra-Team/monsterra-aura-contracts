@@ -283,7 +283,11 @@ pub fn log(
     let current_counter = log_counter(storage)?;
     TRANSFER_LOGS.update(storage, u64::from(current_counter), log)?;
 
-    let res = Response::new().add_attribute("action", "log_transfer");
+    let res = Response::new()
+        .add_attribute("action", "log_transfer")
+        .add_attribute("from", from_addr)
+        .add_attribute("to", rcpt_addr)
+        .add_attribute("amount", amount);
     Ok(res)
 }
 

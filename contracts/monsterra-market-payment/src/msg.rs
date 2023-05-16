@@ -1,30 +1,41 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
+use cosmwasm_std::Addr;
 
-/// Message type for `instantiate` entry_point
+use crate::state::{ContractInfo, ContractSupport};
+
 #[cw_serde]
-pub struct InstantiateMsg {}
+pub struct InstantiateMsg {
+    pub name: String,
+    pub symbol: String,
+}
 
-/// Message type for `execute` entry_point
 #[cw_serde]
-pub enum ExecuteMsg {}
+pub struct MigrateMsg {}
 
-/// Message type for `migrate` entry_point
 #[cw_serde]
-pub enum MigrateMsg {}
+pub enum ExecuteMsg {
+    AddContractSupport {contract_address: Addr, payment_contract: Addr, fee: u16, is_cw721: bool},
+    UpdateFee { contract_address: Addr, fee: u16 },
+    SetPaymentMethod {contract_address: Addr, payment_contract: Addr, status: bool},
+    RemoveContractSupport { contract_address: Addr },
+}
 
-/// Message type for `query` entry_point
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
-    // This example query variant indicates that any client can query the contract
-    // using `YourQuery` and it will return `YourQueryResponse`
-    // This `returns` information will be included in contract's schema
-    // which is used for client code generation.
-    //
-    // #[returns(YourQueryResponse)]
-    // YourQuery {},
-}
+    #[returns(ContractInfo)]
+    GamePaymentContractInfo {},
 
-// We define a custom struct for each query response
-// #[cw_serde]
-// pub struct YourQueryResponse {}
+    #[returns(ContractSupport)]
+    ContractSupportInfo {
+        contract_address: Addr,
+    },
+
+    #[returns(bool)]
+    IsTokenSupport {
+        contract_address: Addr,
+        payment_contract: Addr,
+    },
+    #[returns(u16)]
+    GetContractFee{contract_address: Addr}
+}
