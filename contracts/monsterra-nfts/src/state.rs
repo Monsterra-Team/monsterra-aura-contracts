@@ -2,7 +2,7 @@
 // see: https://crates.io/crates/cw-storage-plus
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use cw_storage_plus::{Item, Map, U64Key};
+use cw_storage_plus::{Item, Map};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct TransferLog {
@@ -13,7 +13,7 @@ pub struct TransferLog {
     // pub tx_hash: String,
 }
 
-pub const TRANSFER_LOGS: Map<U64Key, TransferLog> = Map::new("transfer_logs");
+pub const TRANSFER_LOGS: Map<u64, TransferLog> = Map::new("transfer_logs");
 pub const LOG_COUNTER: Item<u64> = Item::new("log_counter");
 
 pub const STAKE_OWNERS: Map<String, String> = Map::new("stake_owners");
