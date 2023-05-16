@@ -1,10 +1,9 @@
 // use `cw_storage_plus` to create ORM-like interface to storage
 // see: https://crates.io/crates/cw-storage-plus
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use cosmwasm_schema::cw_serde;
 use cw_storage_plus::{Item, Map};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct TransferLog {
     pub from: String,
     pub to: String,

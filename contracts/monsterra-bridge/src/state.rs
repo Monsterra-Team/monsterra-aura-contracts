@@ -1,5 +1,4 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use cosmwasm_schema::cw_serde;
 use crate::error::ContractError;
 
 use cosmwasm_std::{to_binary,Addr, Uint128,Binary, Storage, MessageInfo,Response,StdResult};
@@ -7,7 +6,7 @@ use cw_storage_plus::{Map, Item};
 
 use crate::msg::SwapMessage;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct Swapdata {
     pub cur_token: String,
     pub des_token: String,
