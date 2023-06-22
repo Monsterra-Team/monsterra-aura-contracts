@@ -34,7 +34,7 @@ impl<'a> GamePaymentContract<'a>
     pub fn execute(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         msg: ExecuteMsg<>,
     ) -> Result<Response<>, ContractError> {

@@ -60,7 +60,7 @@ pub trait GamePaymentQuery<>
 
 impl<'a> GamePaymentContract<'a>
 {
-    pub fn query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    pub fn query(&self, deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
             QueryMsg::GamePaymentContractInfo {} => to_binary(&self.contract_info(deps)?),
             
