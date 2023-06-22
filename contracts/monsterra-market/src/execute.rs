@@ -513,7 +513,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn cancel_order(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         order_id: String,
     ) -> Result<Response, ContractError> {
@@ -815,7 +815,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn cancel_bid(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         bid_id: String,
     ) -> Result<Response, ContractError> {
@@ -999,7 +999,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn cancel_bundle(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         bundle_id: String,
     ) -> Result<Response, ContractError> {
@@ -1043,7 +1043,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn update_bundle_fee(
         &self,
         deps: DepsMut,
-        info: MessageInfo,
+        _info: MessageInfo,
         bundle_fee: u16,
     ) -> Result<Response, ContractError> {
         let mut contract_info = self.contract_info.load(deps.storage)?;
@@ -1055,7 +1055,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn update_game_market_payment_contract(
         &self,
         deps: DepsMut,
-        info: MessageInfo,
+        _info: MessageInfo,
         game_market_payment_contract: Addr,
     ) -> Result<Response, ContractError> {
         let mut contract_info = self.contract_info.load(deps.storage)?;

@@ -1,23 +1,18 @@
-use cosmwasm_schema::cw_serde;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
-use cosmwasm_std::{Addr, Timestamp, Uint128, Storage};
-use cw_storage_plus::{Index, IndexList, IndexedMap, Item, MultiIndex};
 use crate::error::ContractError;
+use cosmwasm_schema::cw_serde;
+use cosmwasm_std::{Addr, Storage, Uint128};
+use cw_storage_plus::{Index, IndexList, IndexedMap, Item, MultiIndex};
 
-pub struct GameMarketContract<'a>
-{
+pub struct GameMarketContract<'a> {
     pub contract_info: Item<'a, ContractInfo>,
-    pub owner: Item<'a,Addr>,
+    pub owner: Item<'a, Addr>,
     pub orders: IndexedMap<'a, &'a str, Order, OrderIndexes<'a>>,
     pub bids: IndexedMap<'a, &'a str, Bid, BidIndexes<'a>>,
     pub bundles: IndexedMap<'a, &'a str, Bundle, BundleIndexes<'a>>,
     pub can_accept: IndexedMap<'a, &'a str, CanAccept, CanAcceptIndexes<'a>>,
 }
 
-impl<> Default for GameMarketContract<'static>
-{
+impl Default for GameMarketContract<'static> {
     fn default() -> Self {
         Self::new(
             "contract_info",
@@ -29,13 +24,12 @@ impl<> Default for GameMarketContract<'static>
             "bundles_key",
             "bundle",
             "can_accept_key",
-            "can_accept"
+            "can_accept",
         )
     }
 }
 
-impl<'a> GameMarketContract<'a>
-{
+impl<'a> GameMarketContract<'a> {
     fn new(
         contract_info: &'a str,
         owner: &'a str,
@@ -93,18 +87,20 @@ impl<'a> GameMarketContract<'a>
         let can_accept_info = self.can_accept.load(storage, &key);
 
         let is_existed = match can_accept_info {
-            Ok(_) => {
-                self.can_accept.save(storage, &key, &can_accept);
-                true
+            Ok(_) => match self.can_accept.save(storage, &key, &can_accept) {
+                Ok(_) => true,
+                Err(_) => true,
             },
             Err(_) => false,
         };
         if !is_existed {
-            self.can_accept
-            .update(storage, &key, |old| match old {
+            match self.can_accept.update(storage, &key, |old| match old {
                 Some(_) => Err(ContractError::Added {}),
                 None => Ok(can_accept),
-            });
+            }) {
+                Ok(_) => todo!(),
+                Err(_) => todo!(),
+            }
         }
     }
 }
@@ -118,7 +114,7 @@ pub struct ContractInfo {
     pub total_bid: u32,
     pub total_bundle: u32,
     pub bundle_fee: u16,
-    pub game_market_payment_contract: Addr
+    pub game_market_payment_contract: Addr,
 }
 
 #[cw_serde]
@@ -168,74 +164,66 @@ pub struct Bundle {
     pub status: bool,
 }
 
-pub struct OrderIndexes<'a>
-{
+pub struct OrderIndexes<'a> {
     // pk goes to second tuple element
     pub order_id: MultiIndex<'a, String, Order, String>,
 }
 
-impl<'a> IndexList<Order> for OrderIndexes<'a>
-{
+impl<'a> IndexList<Order> for OrderIndexes<'a> {
     fn get_indexes(&'_ self) -> Box<dyn Iterator<Item = &'_ dyn Index<Order>> + '_> {
         let v: Vec<&dyn Index<Order>> = vec![&self.order_id];
         Box::new(v.into_iter())
     }
 }
 
-pub struct BidIndexes<'a>
-{
+pub struct BidIndexes<'a> {
     // pk goes to second tuple element
     pub bid_id: MultiIndex<'a, String, Bid, String>,
 }
 
-impl<'a> IndexList<Bid> for BidIndexes<'a>
-{
+impl<'a> IndexList<Bid> for BidIndexes<'a> {
     fn get_indexes(&'_ self) -> Box<dyn Iterator<Item = &'_ dyn Index<Bid>> + '_> {
         let v: Vec<&dyn Index<Bid>> = vec![&self.bid_id];
         Box::new(v.into_iter())
     }
 }
 
-pub struct BundleIndexes<'a>
-{
+pub struct BundleIndexes<'a> {
     // pk goes to second tuple element
     pub bundle_id: MultiIndex<'a, String, Bundle, String>,
 }
 
-impl<'a> IndexList<Bundle> for BundleIndexes<'a>
-{
+impl<'a> IndexList<Bundle> for BundleIndexes<'a> {
     fn get_indexes(&'_ self) -> Box<dyn Iterator<Item = &'_ dyn Index<Bundle>> + '_> {
         let v: Vec<&dyn Index<Bundle>> = vec![&self.bundle_id];
         Box::new(v.into_iter())
     }
 }
 
-pub struct CanAcceptIndexes<'a>
-{
+pub struct CanAcceptIndexes<'a> {
     // pk goes to second tuple element
     pub key: MultiIndex<'a, String, CanAccept, String>,
 }
 
-impl<'a> IndexList<CanAccept> for CanAcceptIndexes<'a>
-{
+impl<'a> IndexList<CanAccept> for CanAcceptIndexes<'a> {
     fn get_indexes(&'_ self) -> Box<dyn Iterator<Item = &'_ dyn Index<CanAccept>> + '_> {
         let v: Vec<&dyn Index<CanAccept>> = vec![&self.key];
         Box::new(v.into_iter())
     }
 }
 
-pub fn can_accept_idx<>(d: &CanAccept) -> String {
+pub fn can_accept_idx(d: &CanAccept) -> String {
     d.token_address.clone().to_string() + (&d.token_id.clone()) + (&d.owner.clone().to_string())
 }
 
-pub fn order_idx<>(d: &Order) -> String {
+pub fn order_idx(d: &Order) -> String {
     d.id.clone()
 }
 
-pub fn bid_idx<>(d: &Bid) -> String {
+pub fn bid_idx(d: &Bid) -> String {
     d.id.clone()
 }
 
-pub fn bundle_idx<>(d: &Bundle) -> String {
+pub fn bundle_idx(d: &Bundle) -> String {
     d.id.clone()
 }

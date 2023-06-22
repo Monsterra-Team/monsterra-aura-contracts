@@ -70,7 +70,7 @@ pub trait GameMarketQuery {
 }
 
 impl<'a> GameMarketContract<'a> {
-    pub fn query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    pub fn query(&self, deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
             QueryMsg::ContractInfo {} => to_binary(&self.contract_info(deps)?),
 
