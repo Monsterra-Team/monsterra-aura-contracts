@@ -35,7 +35,7 @@ pub enum QueryMsg {
     IsAcceptedToken {token: String},
     #[returns(bool)]
     IsAcceptedDesToken {token: String},
-    #[returns(Addr)]
+    #[returns(Binary)]
     GetSigner{},
     #[returns(Swapdata)]
     GetSwapData{transaction_id: String},
