@@ -18,7 +18,7 @@ pub enum ExecuteMsg {
         status: bool,
     },
     SetAcceptedToken {
-        token: String,
+        token: Addr,
         status: bool,
     },
     SetSigner {
@@ -72,7 +72,7 @@ pub enum QueryMsg {
     #[returns(bool)]
     IsAdmin { user: Addr },
     #[returns(bool)]
-    IsAcceptedToken { token: String },
+    IsAcceptedToken { token: Addr },
     #[returns(Binary)]
     GetSigner {},
     #[returns(Uint256)]

@@ -35,10 +35,10 @@ pub fn execute_set_admin(
 pub fn execute_set_accepted_token(
     storage: &mut dyn Storage,
     info: MessageInfo,
-    token: String,
+    token: Addr,
     status: bool,
 ) -> Result<Response, ContractError> {
-    set_accepted_token(storage, &info, token, status)
+    set_accepted_token(storage, &info, &token, status)
 }
 
 pub fn execute_set_signer(
@@ -53,11 +53,11 @@ pub fn execute_stake(
     storage: &mut dyn Storage,
     env: Env,
     info: MessageInfo,
-    token: Addr,
+    token: &Addr,
     amount: Uint128,
     duration: Uint256,
 ) -> Result<Response, ContractError> {
-    if !is_accepted_token(storage, &token.to_string()) == false {
+    if !is_accepted_token(storage, token.clone()) == false {
         return Err(ContractError::Internal {});
     }
 
@@ -117,7 +117,7 @@ pub fn execute_unstake(
         timestamp,
     } = msg;
 
-    if !is_accepted_token(deps.storage, &token.to_string()) {
+    if !is_accepted_token(deps.storage, token.clone()) {
         return Err(ContractError::Internal {});
     }
 

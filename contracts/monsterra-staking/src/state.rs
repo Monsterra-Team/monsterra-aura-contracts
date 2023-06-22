@@ -21,7 +21,7 @@ pub const OWNER: Item<Addr> = Item::new("owner");
 pub const ADMIN: Map<Addr, bool> = Map::new("admin");
 pub const SIGNER: Item<Binary> = Item::new("signer");
 
-pub const ACCEPTED_TOKENS: Map<String, bool> = Map::new("accepted_token");
+pub const ACCEPTED_TOKENS: Map<Addr, bool> = Map::new("accepted_token");
 pub const MAX_STAKE_DURATION: Item<Uint256> = Item::new("max_stake_duration");
 pub const TOTAL_STAKED: Map<Addr, Uint128> = Map::new("total_staked");
 pub const STAKED_DATA: Map<Addr, Vec<StakeData>> = Map::new("total_staked");
@@ -107,7 +107,7 @@ pub fn get_signer(storage: &dyn Storage) -> Binary {
 pub fn set_accepted_token(
     storage: &mut dyn Storage,
     info: &MessageInfo,
-    token: String,
+    token: &Addr,
     status: bool,
 ) -> Result<Response, ContractError> {
     if !is_admin(storage, info.sender.clone()) {
@@ -118,14 +118,14 @@ pub fn set_accepted_token(
     match result {
         Ok(_) => Ok(Response::new()
             .add_attribute("method", "set_accepted_token")
-            .add_attribute("accpeted_token", token)
+            .add_attribute("accpeted_token", token.to_string())
             .add_attribute("status", status.to_string())),
         Err(_) => Err(ContractError::Internal {}),
     }
 }
 
-pub fn is_accepted_token(storage: &dyn Storage, token: &String) -> bool {
-    let result = ACCEPTED_TOKENS.load(storage, token.to_string());
+pub fn is_accepted_token(storage: &dyn Storage, token: Addr) -> bool {
+    let result = ACCEPTED_TOKENS.load(storage, token);
     match result {
         Ok(value) => value,
         Err(_) => false,

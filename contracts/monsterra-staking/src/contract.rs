@@ -15,6 +15,7 @@ use crate::query::{
     query_accepted_token, query_admin, query_owner, query_signer, query_staked_data,
     query_total_staked,
 };
+use crate::state::{set_admin, OWNER};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:monsterra-staking";
@@ -29,6 +30,9 @@ pub fn instantiate(
     _msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+
+    OWNER.save(deps.storage, &info.sender)?;
+    set_admin(deps.storage, &info, info.sender.clone(), true)?;
 
     // With `Response` type, it is possible to dispatch message to invoke external logic.
     // See: https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#dispatching-messages
@@ -75,7 +79,7 @@ pub fn execute(
             token,
             amount,
             duration,
-        } => execute_stake(deps.storage, env, info, token, amount, duration),
+        } => execute_stake(deps.storage, env, info, &token, amount, duration),
         ExecuteMsg::Unstake { msg, signature } => execute_unstake(deps, env, info, msg, signature),
     }
 }

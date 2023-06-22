@@ -17,8 +17,8 @@ pub fn query_signer(storage: &dyn Storage) -> Binary {
     get_signer(storage)
 }
 
-pub fn query_accepted_token(storage: &dyn Storage, token: String) -> bool {
-    is_accepted_token(storage, &token)
+pub fn query_accepted_token(storage: &dyn Storage, token: Addr) -> bool {
+    is_accepted_token(storage, token)
 }
 
 pub fn query_total_staked(storage: &dyn Storage, user: Addr) -> Uint128 {
