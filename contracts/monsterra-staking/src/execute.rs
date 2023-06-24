@@ -1,6 +1,6 @@
 use cosmwasm_std::{
-    to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, Storage,
-    Uint128, Uint256, WasmMsg,
+    to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdError,
+    Storage, Uint128, Uint256, WasmMsg,
 };
 use cw20::Cw20ExecuteMsg;
 use sha2::{Digest, Sha256};
@@ -57,8 +57,8 @@ pub fn execute_stake(
     amount: Uint128,
     duration: Uint256,
 ) -> Result<Response, ContractError> {
-    if !is_accepted_token(storage, token.clone()) == false {
-        return Err(ContractError::Internal {});
+    if !is_accepted_token(storage, token.clone()) {
+        return Err(ContractError::NotAcceptedToken {});
     }
 
     let mut messages: Vec<CosmosMsg> = vec![];
@@ -85,10 +85,9 @@ pub fn execute_stake(
 
     let mut total_staked = get_total_staked(storage, info.sender.clone());
 
-    match total_staked.checked_add(amount) {
-        Ok(value) => total_staked = value,
-        Err(_) => return Err(ContractError::Internal {}),
-    }
+    total_staked = total_staked
+        .checked_add(amount)
+        .map_err(StdError::overflow)?;
 
     set_total_staked(storage, &info.sender.clone(), total_staked)?;
 
@@ -118,7 +117,7 @@ pub fn execute_unstake(
     } = msg;
 
     if !is_accepted_token(deps.storage, token.clone()) {
-        return Err(ContractError::Internal {});
+        return Err(ContractError::NotAcceptedToken {});
     }
 
     if !timestamp.plus_seconds(60 * 2).gt(&env.block.time) {

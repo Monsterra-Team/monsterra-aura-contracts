@@ -9,6 +9,9 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized {},
 
+    #[error("NotAcceptedToken")]
+    NotAcceptedToken {},
+
     #[error("NonceUsed")]
     NonceUsed {},
 
