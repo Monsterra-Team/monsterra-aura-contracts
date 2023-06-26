@@ -183,8 +183,13 @@ pub fn set_staked_data(
     user: &Addr,
     data: StakeData,
 ) -> Result<Response, ContractError> {
-    let mut staked_data = STAKED_DATA.load(storage, user.clone())?;
+    let mut staked_data = match STAKED_DATA.load(storage, user.clone()) {
+        Ok(vec) => vec,
+        Err(_) => Vec::new(),
+    };
+
     staked_data.push(data.clone());
+
     let result = STAKED_DATA.save(storage, user.clone(), &staked_data);
     match result {
         Ok(_) => Ok(Response::new()
