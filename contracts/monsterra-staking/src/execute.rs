@@ -120,7 +120,7 @@ pub fn execute_unstake(
         return Err(ContractError::NotAcceptedToken {});
     }
 
-    if !timestamp.plus_seconds(60 * 2).gt(&env.block.time) {
+    if timestamp.plus_seconds(60 * 2).gt(&env.block.time) {
         return Err(ContractError::TimeExpired {});
     }
 
