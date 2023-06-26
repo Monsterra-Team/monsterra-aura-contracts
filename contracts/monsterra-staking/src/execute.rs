@@ -55,7 +55,7 @@ pub fn execute_stake(
     info: MessageInfo,
     token: &Addr,
     amount: Uint128,
-    duration: Uint256,
+    duration: u8,
 ) -> Result<Response, ContractError> {
     if !is_accepted_token(storage, token.clone()) {
         return Err(ContractError::NotAcceptedToken {});

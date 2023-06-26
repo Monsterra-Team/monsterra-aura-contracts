@@ -2,9 +2,7 @@
 // see: https://crates.io/crates/cw-storage-plus
 
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{
-    to_binary, Addr, Binary, MessageInfo, Response, Storage, Timestamp, Uint128, Uint256,
-};
+use cosmwasm_std::{to_binary, Addr, Binary, MessageInfo, Response, Storage, Timestamp, Uint128};
 use cw_storage_plus::{Item, Map};
 
 use crate::ContractError;
@@ -12,7 +10,7 @@ use crate::ContractError;
 #[cw_serde]
 pub struct StakeData {
     pub amount: Uint128,
-    pub duration: Uint256,
+    pub duration: u8,
     pub token: Addr,
     pub time: Timestamp,
 }
@@ -22,7 +20,7 @@ pub const ADMIN: Map<Addr, bool> = Map::new("admin");
 pub const SIGNER: Item<Binary> = Item::new("signer");
 
 pub const ACCEPTED_TOKENS: Map<Addr, bool> = Map::new("accepted_token");
-pub const MAX_STAKE_DURATION: Item<Uint256> = Item::new("max_stake_duration");
+pub const MAX_STAKE_DURATION: Item<u8> = Item::new("max_stake_duration");
 pub const TOTAL_STAKED: Map<Addr, Uint128> = Map::new("total_staked");
 pub const STAKED_DATA: Map<Addr, Vec<StakeData>> = Map::new("total_staked");
 pub const USED_NONCES: Map<String, bool> = Map::new("used_nonces");

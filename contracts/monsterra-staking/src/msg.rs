@@ -1,5 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Addr, Binary, Timestamp, Uint128, Uint256};
+use cosmwasm_std::{Addr, Binary, Timestamp, Uint128};
 
 use crate::state::StakeData;
 
@@ -27,7 +27,7 @@ pub enum ExecuteMsg {
     Stake {
         token: Addr,
         amount: Uint128,
-        duration: Uint256,
+        duration: u8,
     },
     Unstake {
         msg: UnstakeMsg,
@@ -75,7 +75,7 @@ pub enum QueryMsg {
     IsAcceptedToken { token: Addr },
     #[returns(Binary)]
     GetSigner {},
-    #[returns(Uint256)]
+    #[returns(Uint128)]
     GetTotalStaked { user: Addr },
     #[returns(Vec<StakeData>)]
     GetStakeData { user: Addr },
