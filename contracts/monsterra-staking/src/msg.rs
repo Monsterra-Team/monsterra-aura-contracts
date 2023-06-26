@@ -79,6 +79,8 @@ pub enum QueryMsg {
     GetTotalStaked { user: Addr },
     #[returns(Vec<StakeData>)]
     GetStakeData { user: Addr },
+    #[returns(bool)]
+    IsUsedNonce { nonce: String },
 }
 
 // We define a custom struct for each query response

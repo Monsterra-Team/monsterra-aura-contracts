@@ -13,7 +13,7 @@ use crate::execute::{
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::query::{
     query_accepted_token, query_admin, query_owner, query_signer, query_staked_data,
-    query_total_staked,
+    query_total_staked, query_used_nonce,
 };
 use crate::state::{set_admin, OWNER};
 
@@ -96,6 +96,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         }
         QueryMsg::GetTotalStaked { user } => to_binary(&query_total_staked(deps.storage, user)),
         QueryMsg::GetStakeData { user } => to_binary(&query_staked_data(deps.storage, user)),
+        QueryMsg::IsUsedNonce { nonce} => to_binary(&query_used_nonce(deps.storage, nonce)),
     }
 }
 

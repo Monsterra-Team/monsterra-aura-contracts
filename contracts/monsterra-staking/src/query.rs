@@ -2,7 +2,7 @@ use cosmwasm_std::{Addr, Binary, Storage, Uint128};
 
 use crate::state::{
     get_owner, get_signer, get_staked_data, get_total_staked, is_accepted_token, is_admin,
-    StakeData,
+    is_used_nonce, StakeData,
 };
 
 pub fn query_owner(storage: &dyn Storage) -> Addr {
@@ -27,4 +27,8 @@ pub fn query_total_staked(storage: &dyn Storage, user: Addr) -> Uint128 {
 
 pub fn query_staked_data(storage: &dyn Storage, user: Addr) -> Vec<StakeData> {
     get_staked_data(storage, user)
+}
+
+pub fn query_used_nonce(storage: &dyn Storage, nonce: String) -> bool {
+    is_used_nonce(storage, nonce)
 }
