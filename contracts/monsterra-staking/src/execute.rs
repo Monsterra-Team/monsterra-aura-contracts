@@ -1,6 +1,6 @@
 use cosmwasm_std::{
     to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdError,
-    Storage, Uint128, Uint256, WasmMsg,
+    Storage, Uint128, WasmMsg,
 };
 use cw20::Cw20ExecuteMsg;
 use sha2::{Digest, Sha256};
