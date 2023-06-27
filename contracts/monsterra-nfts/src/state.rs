@@ -8,6 +8,8 @@ use crate::error::MonsterraNFTError;
 pub const ADMIN: Map<Addr, bool> = Map::new("admin");
 pub const SIGNER: Item<Binary> = Item::new("signer");
 
+pub const BASE_URI: Item<String> = Item::new("base_uri");
+
 pub const STAKE_OWNERS: Map<String, String> = Map::new("stake_owners");
 pub const USED_NONCES: Map<String, bool> = Map::new("used_nonces");
 
@@ -89,5 +91,31 @@ pub fn is_used_nonce(storage: &dyn Storage, nonce: String) -> bool {
     match result {
         Ok(value) => value,
         Err(_) => false,
+    }
+}
+
+pub fn set_base_uri(
+    storage: &mut dyn Storage,
+    info: &MessageInfo,
+    base_uri: String,
+) -> Result<Response, MonsterraNFTError> {
+    if !is_admin(storage, info.sender.clone()) {
+        return Err(MonsterraNFTError::Unauthorized {});
+    }
+
+    let result = BASE_URI.save(storage, &base_uri);
+    match result {
+        Ok(_) => Ok(Response::new()
+            .add_attribute("method", "set_base_uri")
+            .add_attribute("base_uri", base_uri)),
+        Err(_) => Err(MonsterraNFTError::Internal {}),
+    }
+}
+
+pub fn get_base_uri(storage: &dyn Storage) -> String {
+    let result = BASE_URI.load(storage);
+    match result {
+        Ok(value) => value,
+        Err(_) => String::from(""),
     }
 }

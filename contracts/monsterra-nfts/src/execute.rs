@@ -102,7 +102,7 @@ pub fn mint_batch_with_signature(
 
 fn mint(
     mut deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     msg: MintMsg<Extension>,
 ) -> Result<Response<Empty>, ContractError> {

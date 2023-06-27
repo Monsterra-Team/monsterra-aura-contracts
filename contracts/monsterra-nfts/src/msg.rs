@@ -9,7 +9,41 @@ use cosmwasm_std::Binary;
 use cw721::Expiration;
 
 use cw721_base::ExecuteMsg as CW721ExecuteMsg;
+use cw721_base::InstantiateMsg as CW721InstantiateMsg;
 use cw721_base::QueryMsg as CW721QueryMsg;
+
+#[cw_serde]
+pub struct MonsterraNFTInstantiateMsg {
+    /// Name of the NFT contract
+    pub name: String,
+    /// Symbol of the NFT contract
+    pub symbol: String,
+
+    /// The minter is the only one who can create new NFTs.
+    /// This is designed for a base NFT that is controlled by an external program
+    /// or contract. You will likely replace this with custom logic in custom NFTs
+    pub minter: String,
+
+    /// Default URI of NFT contract
+    pub base_uri: String,
+}
+
+impl From<MonsterraNFTInstantiateMsg> for CW721InstantiateMsg {
+    fn from(msg: MonsterraNFTInstantiateMsg) -> CW721InstantiateMsg {
+        match msg {
+            MonsterraNFTInstantiateMsg {
+                name,
+                symbol,
+                minter,
+                base_uri: _,
+            } => CW721InstantiateMsg {
+                name,
+                symbol,
+                minter,
+            },
+        }
+    }
+}
 
 #[cw_serde]
 pub struct MonsterraNFTMigrateMsg {}
@@ -92,6 +126,10 @@ pub enum MonsterraNFTExecuteMsg<T, E> {
     MintBatchWithSignature {
         msg: MintBatchWithSignatureMsg<T>,
         signature: Binary,
+    },
+
+    SetBaseURI {
+        base_uri: String,
     },
 }
 
@@ -276,6 +314,9 @@ pub enum MonsterraNFTQueryMsg<Q: JsonSchema> {
 
     #[returns(Binary)]
     GetSigner {},
+
+    #[returns(String)]
+    GetBaseURI {},
 }
 
 impl<Q: JsonSchema> From<MonsterraNFTQueryMsg<Q>> for CW721QueryMsg<Q> {

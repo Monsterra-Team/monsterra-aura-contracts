@@ -6,11 +6,18 @@ pub mod state;
 
 use cosmwasm_schema::cw_serde;
 
-use cosmwasm_std::Empty;
+use cosmwasm_std::{entry_point, to_binary};
+use cosmwasm_std::{Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult};
 
-pub use cw721_base::{ContractError, Cw721Contract, InstantiateMsg, MinterResponse};
+pub use cw721_base::{ContractError, Cw721Contract, MinterResponse};
 
 use execute::{mint_batch, stake_batch};
+use query::nft_info;
+
+use error::MonsterraNFTError;
+use state::{
+    get_base_uri, get_signer, is_admin, is_used_nonce, set_admin, set_base_uri, set_signer,
+};
 
 // see: https://docs.opensea.io/docs/metadata-standards
 #[cw_serde]
@@ -25,16 +32,11 @@ pub type MonsterraNFT<'a> = cw721_base::Cw721Contract<'a, Extension, Empty, Empt
 pub type ExecuteMsg = crate::msg::MonsterraNFTExecuteMsg<Extension, Empty>;
 pub type QueryMsg = crate::msg::MonsterraNFTQueryMsg<Empty>;
 pub type MigrateMsg = crate::msg::MonsterraNFTMigrateMsg;
+pub type InstantiateMsg = crate::msg::MonsterraNFTInstantiateMsg;
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
-    use crate::error::MonsterraNFTError;
-    use crate::state::{get_signer, is_admin, is_used_nonce, set_admin, set_signer};
-
     use super::*;
-
-    use cosmwasm_std::{entry_point, to_binary};
-    use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 
     // This is a simple type to let us handle empty extensions
 
@@ -45,8 +47,12 @@ pub mod entry {
         env: Env,
         info: MessageInfo,
         msg: InstantiateMsg,
-    ) -> StdResult<Response> {
-        MonsterraNFT::default().instantiate(deps, env, info, msg)
+    ) -> Result<Response, MonsterraNFTError> {
+        set_base_uri(deps.storage, &info, msg.base_uri.clone())?;
+        match MonsterraNFT::default().instantiate(deps, env, info, msg.into()) {
+            Ok(result) => Ok(result),
+            Err(error) => Err(MonsterraNFTError::Std(error)),
+        }
     }
 
     #[entry_point]
@@ -61,6 +67,7 @@ pub mod entry {
             ExecuteMsg::StakeBatch { token_ids } => stake_batch(deps, env, info, token_ids),
             ExecuteMsg::SetAdmin { user, status } => set_admin(deps.storage, &info, user, status),
             ExecuteMsg::SetSigner { public_key } => set_signer(deps.storage, &info, public_key),
+            ExecuteMsg::SetBaseURI { base_uri } => set_base_uri(deps.storage, &info, base_uri),
             _ => match MonsterraNFT::default().execute(deps, env, info, msg.into()) {
                 Ok(result) => Ok(result),
                 Err(error) => Err(MonsterraNFTError::CW721(error)),
@@ -71,9 +78,11 @@ pub mod entry {
     #[entry_point]
     pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
+            QueryMsg::NftInfo { token_id } => to_binary(&nft_info(deps, token_id)?),
             QueryMsg::IsUsedNonce { nonce } => to_binary(&is_used_nonce(deps.storage, nonce)),
             QueryMsg::IsAdmin { user } => to_binary(&is_admin(deps.storage, user)),
             QueryMsg::GetSigner {} => to_binary(&get_signer(deps.storage)),
+            QueryMsg::GetBaseURI {} => to_binary(&get_base_uri(deps.storage)),
             _ => MonsterraNFT::default().query(deps, env, msg.into()),
         }
     }
