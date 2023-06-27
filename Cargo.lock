@@ -759,12 +759,14 @@ dependencies = [
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-multi-test",
+ "cw-ownable",
  "cw-storage-plus 0.13.4",
  "cw2 0.13.4",
  "cw721 0.17.0",
  "cw721-base 0.17.0",
  "schemars",
  "serde",
+ "sha2 0.10.7",
  "thiserror",
 ]
 

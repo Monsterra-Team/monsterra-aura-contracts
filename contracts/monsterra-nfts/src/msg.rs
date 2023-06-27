@@ -1,5 +1,7 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_schema::QueryResponses;
+use cosmwasm_std::Addr;
+use cosmwasm_std::Timestamp;
 use cw721_base::MinterResponse;
 use schemars::JsonSchema;
 
@@ -9,19 +11,11 @@ use cw721::Expiration;
 use cw721_base::ExecuteMsg as CW721ExecuteMsg;
 use cw721_base::QueryMsg as CW721QueryMsg;
 
-use crate::state::TransferLog;
-
 #[cw_serde]
 pub struct MonsterraNFTMigrateMsg {}
 
 #[cw_serde]
 pub enum MonsterraNFTExecuteMsg<T, E> {
-    MintBatch(MintBatchMsg<T>),
-
-    StakeBatch {
-        token_ids: Vec<String>,
-    },
-
     /// Transfer is a base message to move a token to another account without triggering actions
     TransferNft {
         recipient: String,
@@ -79,27 +73,47 @@ pub enum MonsterraNFTExecuteMsg<T, E> {
     Extension {
         msg: E,
     },
+
+    SetAdmin {
+        user: Addr,
+        status: bool,
+    },
+
+    SetSigner {
+        public_key: Binary,
+    },
+
+    MintBatch(MintBatchMsg<T>),
+
+    StakeBatch {
+        token_ids: Vec<String>,
+    },
+
+    MintBatchWithSignature {
+        msg: MintBatchWithSignatureMsg<T>,
+        signature: Binary,
+    },
 }
 
 impl<T, E> From<MonsterraNFTExecuteMsg<T, E>> for CW721ExecuteMsg<T, E> {
     fn from(msg: MonsterraNFTExecuteMsg<T, E>) -> CW721ExecuteMsg<T, E> {
         match msg {
-            // MonsterraNFTExecuteMsg::TransferNft {
-            //   recipient,
-            //   token_id,
-            // } => CW721ExecuteMsg::TransferNft {
-            //   recipient,
-            //   token_id,
-            // },
-            // MonsterraNFTExecuteMsg::SendNft {
-            //   contract,
-            //   token_id,
-            //   msg,
-            // } => CW721ExecuteMsg::SendNft {
-            //   contract,
-            //   token_id,
-            //   msg,
-            // },
+            MonsterraNFTExecuteMsg::TransferNft {
+                recipient,
+                token_id,
+            } => CW721ExecuteMsg::TransferNft {
+                recipient,
+                token_id,
+            },
+            MonsterraNFTExecuteMsg::SendNft {
+                contract,
+                token_id,
+                msg,
+            } => CW721ExecuteMsg::SendNft {
+                contract,
+                token_id,
+                msg,
+            },
             MonsterraNFTExecuteMsg::Approve {
                 spender,
                 token_id,
@@ -154,18 +168,23 @@ pub struct MintBatchMsg<T> {
 }
 
 #[cw_serde]
-pub struct TransferLogResponse {
-    pub logs: Vec<TransferLog>,
+pub struct MintBatchWithSignatureMsg<T> {
+    pub msgs: Vec<MintMsg<T>>,
+    pub nonce: String,
+    pub timestamp: Timestamp,
+}
+
+#[cw_serde]
+pub struct MintBatchWithSignaturePayload<T> {
+    pub sender: Addr,
+    pub msgs: Vec<MintMsg<T>>,
+    pub nonce: String,
+    pub timestamp: Timestamp,
 }
 
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum MonsterraNFTQueryMsg<Q: JsonSchema> {
-    #[returns(TransferLogResponse)]
-    AllTransferLogs {
-        start_after: Option<u64>,
-        limit: Option<u32>,
-    },
     /// Return the owner of the given token, error if token does not exist
     #[returns(cw721::OwnerOfResponse)]
     OwnerOf {
@@ -248,6 +267,15 @@ pub enum MonsterraNFTQueryMsg<Q: JsonSchema> {
     /// Extension query
     #[returns(())]
     Extension { msg: Q },
+
+    #[returns(bool)]
+    IsUsedNonce { nonce: String },
+
+    #[returns(bool)]
+    IsAdmin { user: Addr },
+
+    #[returns(Binary)]
+    GetSigner {},
 }
 
 impl<Q: JsonSchema> From<MonsterraNFTQueryMsg<Q>> for CW721QueryMsg<Q> {
