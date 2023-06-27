@@ -56,6 +56,50 @@ pub fn stake_batch(
     Ok(Response::new().add_attribute("action", "stake_batch"))
 }
 
+pub fn mint_batch_with_signature(
+    mut deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: MintBatchWithSignatureMsg<Extension>,
+    signature: Binary,
+) -> Result<Response, MonsterraNFTError> {
+    let MintBatchWithSignatureMsg {
+        msgs,
+        nonce,
+        timestamp,
+    } = msg.clone();
+
+    if timestamp.plus_seconds(60 * 2).gt(&env.block.time) {
+        return Err(MonsterraNFTError::TimeExpired {});
+    }
+
+    if is_used_nonce(deps.storage, nonce.clone()) {
+        return Err(MonsterraNFTError::NonceUsed {});
+    }
+    set_used_nonce(deps.storage, nonce.clone(), true)?;
+
+    if !verify_sig(
+        deps.as_ref(),
+        &MintBatchWithSignaturePayload {
+            sender: info.sender.clone(),
+            nonce,
+            timestamp,
+            msgs: msgs.clone(),
+        },
+        signature,
+    ) {
+        return Err(MonsterraNFTError::InvalidSignature {});
+    }
+
+    for msg in msgs {
+        if info.sender != msg.owner {
+            return Err(MonsterraNFTError::Unauthorized {});
+        }
+        mint(deps.branch(), env.clone(), info.clone(), msg)?;
+    }
+    Ok(Response::new().add_attribute("action", "mint_batch"))
+}
+
 fn mint(
     mut deps: DepsMut,
     env: Env,
@@ -107,50 +151,6 @@ fn mint(
             Ok(res)
         }
     }
-}
-
-pub fn mint_batch_with_signature(
-    mut deps: DepsMut,
-    env: Env,
-    info: MessageInfo,
-    msg: MintBatchWithSignatureMsg<Extension>,
-    signature: Binary,
-) -> Result<Response, MonsterraNFTError> {
-    let MintBatchWithSignatureMsg {
-        msgs,
-        nonce,
-        timestamp,
-    } = msg.clone();
-
-    if timestamp.plus_seconds(60 * 2).gt(&env.block.time) {
-        return Err(MonsterraNFTError::TimeExpired {});
-    }
-
-    if is_used_nonce(deps.storage, nonce.clone()) {
-        return Err(MonsterraNFTError::NonceUsed {});
-    }
-    set_used_nonce(deps.storage, nonce.clone(), true)?;
-
-    if !verify_sig(
-        deps.as_ref(),
-        &MintBatchWithSignaturePayload {
-            sender: info.sender.clone(),
-            nonce,
-            timestamp,
-            msgs: msgs.clone(),
-        },
-        signature,
-    ) {
-        return Err(MonsterraNFTError::InvalidSignature {});
-    }
-
-    for msg in msgs {
-        if info.sender != msg.owner {
-            return Err(MonsterraNFTError::Unauthorized {});
-        }
-        mint(deps.branch(), env.clone(), info.clone(), msg)?;
-    }
-    Ok(Response::new().add_attribute("action", "mint_batch"))
 }
 
 fn verify_sig(
