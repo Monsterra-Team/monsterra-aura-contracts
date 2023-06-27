@@ -56,7 +56,7 @@ pub fn stake_batch(
     Ok(Response::new().add_attribute("action", "stake_batch"))
 }
 
-pub fn mint(
+fn mint(
     mut deps: DepsMut,
     env: Env,
     info: MessageInfo,
