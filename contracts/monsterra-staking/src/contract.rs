@@ -96,7 +96,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         }
         QueryMsg::GetTotalStaked { user } => to_binary(&query_total_staked(deps.storage, user)),
         QueryMsg::GetStakeData { user } => to_binary(&query_staked_data(deps.storage, user)),
-        QueryMsg::IsUsedNonce { nonce} => to_binary(&query_used_nonce(deps.storage, nonce)),
+        QueryMsg::IsUsedNonce { nonce } => to_binary(&query_used_nonce(deps.storage, nonce)),
     }
 }
 
