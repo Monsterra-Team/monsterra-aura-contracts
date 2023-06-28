@@ -20,8 +20,12 @@ pub fn set_admin(
     status: bool,
 ) -> Result<Response, MonsterraNFTError> {
     match cw_ownable::assert_owner(storage, &info.sender) {
-        Ok(_) => todo!(),
-        Err(error) => MonsterraNFTError::CW721(cw721_base::ContractError::Ownership(error)),
+        Ok(_) => {}
+        Err(error) => {
+            return Err(MonsterraNFTError::CW721(
+                cw721_base::ContractError::Ownership(error),
+            ))
+        }
     };
 
     let result = ADMIN.save(storage, user.clone(), &status);
