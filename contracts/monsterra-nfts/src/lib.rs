@@ -49,6 +49,7 @@ pub mod entry {
     ) -> Result<Response, MonsterraNFTError> {
         let base_uri = msg.base_uri.clone();
         let res = MonsterraNFT::default().instantiate(deps.branch(), env, info.clone(), msg.into());
+        set_admin(deps.storage, &info, info.sender.clone(), true)?;
         set_base_uri(deps.storage, &info, base_uri)?;
         match res {
             Ok(result) => Ok(result),

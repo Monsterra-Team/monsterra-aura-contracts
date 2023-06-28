@@ -5,6 +5,7 @@ use cosmwasm_std::{
     to_binary, Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult,
 };
 use cw721::Cw721Execute;
+use cw721_base::state::TokenInfo;
 use cw721_base::ContractError;
 use sha2::{Digest, Sha256};
 
@@ -132,15 +133,26 @@ fn mint(
                 .add_attribute("token_id", msg.token_id))
         }
         None => {
-            let res = contract.mint(
-                deps.branch(),
-                info.clone(),
-                msg.token_id.clone(),
-                msg.owner.clone(),
-                None,
-                None,
-            )?;
-            Ok(res)
+            let token = TokenInfo {
+                owner: deps.api.addr_validate(&msg.owner)?,
+                approvals: vec![],
+                token_uri: None,
+                extension: None,
+            };
+            contract
+                .tokens
+                .update(deps.storage, &msg.token_id, |old| match old {
+                    Some(_) => Err(ContractError::Claimed {}),
+                    None => Ok(token),
+                })?;
+
+            contract.increment_tokens(deps.storage)?;
+
+            Ok(Response::new()
+                .add_attribute("action", "mint")
+                .add_attribute("minter", info.sender)
+                .add_attribute("owner", msg.owner)
+                .add_attribute("token_id", msg.token_id))
         }
     }
 }
