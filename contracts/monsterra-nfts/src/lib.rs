@@ -42,13 +42,15 @@ pub mod entry {
     // This makes a conscious choice on the various generics used by the contract
     #[entry_point]
     pub fn instantiate(
-        deps: DepsMut,
+        mut deps: DepsMut,
         env: Env,
         info: MessageInfo,
         msg: InstantiateMsg,
     ) -> Result<Response, MonsterraNFTError> {
-        set_base_uri(deps.storage, &info, msg.base_uri.clone())?;
-        match MonsterraNFT::default().instantiate(deps, env, info, msg.into()) {
+        let base_uri = msg.base_uri.clone();
+        let res = MonsterraNFT::default().instantiate(deps.branch(), env, info.clone(), msg.into());
+        set_base_uri(deps.storage, &info, base_uri)?;
+        match res {
             Ok(result) => Ok(result),
             Err(error) => Err(MonsterraNFTError::Std(error)),
         }
