@@ -60,11 +60,11 @@ pub fn mint_batch_with_signature(
     mut deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    msg: MintBatchWithSignatureMsg<Extension>,
+    msg: MintBatchWithSignatureMsg,
     signature: Binary,
 ) -> Result<Response, MonsterraNFTError> {
     let MintBatchWithSignatureMsg {
-        msgs,
+        token_ids,
         nonce,
         timestamp,
     } = msg.clone();
@@ -84,60 +84,52 @@ pub fn mint_batch_with_signature(
             sender: info.sender.clone(),
             nonce,
             timestamp,
-            msgs: msgs.clone(),
+            token_ids: token_ids.clone(),
         },
         signature,
     ) {
         return Err(MonsterraNFTError::InvalidSignature {});
     }
 
-    for msg in msgs {
-        if info.sender != msg.owner {
-            return Err(MonsterraNFTError::Unauthorized {});
-        }
-        mint(deps.branch(), env.clone(), info.clone(), msg)?;
+    for token_id in token_ids {
+        mint(deps.branch(), env.clone(), info.clone(), {
+            MintMsg {
+                token_id,
+                owner: info.sender.to_string(),
+                token_uri: None,
+                extension: None,
+            }
+        })?;
     }
     Ok(Response::new().add_attribute("action", "mint_batch"))
 }
 
 fn mint(
     mut deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: MintMsg<Extension>,
 ) -> Result<Response<Empty>, ContractError> {
     let contract = MonsterraNFT::default();
 
-    let owner = STAKE_OWNERS.may_load(deps.storage, msg.token_id.clone())?;
+    let stake_owner = STAKE_OWNERS.may_load(deps.storage, msg.token_id.clone())?;
 
-    match owner {
+    match stake_owner {
         Some(_) => {
-            // let transfer_msg = MonsterraExecuteMsg::<Extension>::TransferNft {
-            //   recipient: String::from("merlin"),
-            //   token_id: msg.token_id.clone(),
-            // };
-
-            // let res = CosmosMsg::Wasm(WasmMsg::Execute {
-            //   contract_addr: env.contract.address.clone().into_string(),
-            //   msg: to_binary(&transfer_msg)?,
-            //   funds: vec![],
-            // });
-
-            contract
-                .tokens
-                .remove(deps.storage, msg.token_id.as_str())?;
-
-            let res = contract.mint(
+            contract.transfer_nft(
                 deps.branch(),
+                env.clone(),
                 info.clone(),
-                msg.token_id.clone(),
                 msg.owner.clone(),
-                msg.token_uri.clone(),
-                msg.extension.clone(),
+                msg.token_id.clone(),
             )?;
-
             STAKE_OWNERS.remove(deps.storage, msg.token_id.clone());
-            Ok(res)
+
+            Ok(Response::new()
+                .add_attribute("action", "mint")
+                .add_attribute("minter", info.sender)
+                .add_attribute("owner", msg.owner)
+                .add_attribute("token_id", msg.token_id))
         }
         None => {
             let res = contract.mint(
@@ -145,19 +137,15 @@ fn mint(
                 info.clone(),
                 msg.token_id.clone(),
                 msg.owner.clone(),
-                msg.token_uri.clone(),
-                msg.extension.clone(),
+                None,
+                None,
             )?;
             Ok(res)
         }
     }
 }
 
-fn verify_sig(
-    deps: Deps,
-    mint_payload: &MintBatchWithSignaturePayload<Extension>,
-    signature: Binary,
-) -> bool {
+fn verify_sig(deps: Deps, mint_payload: &MintBatchWithSignaturePayload, signature: Binary) -> bool {
     let msg: Binary;
     let result = to_binary(mint_payload);
     match result {

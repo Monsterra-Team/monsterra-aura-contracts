@@ -124,7 +124,7 @@ pub enum MonsterraNFTExecuteMsg<T, E> {
     },
 
     MintBatchWithSignature {
-        msg: MintBatchWithSignatureMsg<T>,
+        msg: MintBatchWithSignatureMsg,
         signature: Binary,
     },
 
@@ -206,16 +206,16 @@ pub struct MintBatchMsg<T> {
 }
 
 #[cw_serde]
-pub struct MintBatchWithSignatureMsg<T> {
-    pub msgs: Vec<MintMsg<T>>,
+pub struct MintBatchWithSignatureMsg {
+    pub token_ids: Vec<String>,
     pub nonce: String,
     pub timestamp: Timestamp,
 }
 
 #[cw_serde]
-pub struct MintBatchWithSignaturePayload<T> {
+pub struct MintBatchWithSignaturePayload {
     pub sender: Addr,
-    pub msgs: Vec<MintMsg<T>>,
+    pub token_ids: Vec<String>,
     pub nonce: String,
     pub timestamp: Timestamp,
 }
