@@ -316,7 +316,7 @@ pub enum MonsterraNFTQueryMsg<Q: JsonSchema> {
     GetSigner {},
 
     #[returns(String)]
-    GetBaseURI {},
+    GetBaseUri {},
 }
 
 impl<Q: JsonSchema> From<MonsterraNFTQueryMsg<Q>> for CW721QueryMsg<Q> {

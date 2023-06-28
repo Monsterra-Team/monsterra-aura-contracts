@@ -87,7 +87,7 @@ pub mod entry {
             QueryMsg::IsUsedNonce { nonce } => to_binary(&is_used_nonce(deps.storage, nonce)),
             QueryMsg::IsAdmin { user } => to_binary(&is_admin(deps.storage, user)),
             QueryMsg::GetSigner {} => to_binary(&get_signer(deps.storage)),
-            QueryMsg::GetBaseURI {} => to_binary(&get_base_uri(deps.storage)),
+            QueryMsg::GetBaseUri {} => to_binary(&get_base_uri(deps.storage)),
             _ => MonsterraNFT::default().query(deps, env, msg.into()),
         }
     }
