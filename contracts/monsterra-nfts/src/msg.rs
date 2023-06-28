@@ -128,7 +128,7 @@ pub enum MonsterraNFTExecuteMsg<T, E> {
         signature: Binary,
     },
 
-    SetBaseURI {
+    SetBaseUri {
         base_uri: String,
     },
 }

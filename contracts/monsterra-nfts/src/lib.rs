@@ -72,7 +72,7 @@ pub mod entry {
             }
             ExecuteMsg::SetAdmin { user, status } => set_admin(deps.storage, &info, user, status),
             ExecuteMsg::SetSigner { public_key } => set_signer(deps.storage, &info, public_key),
-            ExecuteMsg::SetBaseURI { base_uri } => set_base_uri(deps.storage, &info, base_uri),
+            ExecuteMsg::SetBaseUri { base_uri } => set_base_uri(deps.storage, &info, base_uri),
             _ => match MonsterraNFT::default().execute(deps, env, info, msg.into()) {
                 Ok(result) => Ok(result),
                 Err(error) => Err(MonsterraNFTError::CW721(error)),
