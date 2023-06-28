@@ -98,8 +98,8 @@ impl<'a> GameMarketContract<'a> {
                 Some(_) => Err(ContractError::Added {}),
                 None => Ok(can_accept),
             }) {
-                Ok(_) => todo!(),
-                Err(_) => todo!(),
+                Ok(_) => {}
+                Err(_) => {}
             }
         }
     }
