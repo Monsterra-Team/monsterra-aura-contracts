@@ -1,9 +1,10 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdResult, Storage};
+use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdResult};
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
+use crate::execute::skip_daily_quest;
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 
 // version info for migration info
@@ -31,8 +32,7 @@ pub fn instantiate(
 /// Handling contract execution
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn migrate(_deps: DepsMut, _env: Env, msg: MigrateMsg) -> Result<Response, ContractError> {
-    match msg {
-    }
+    match msg {}
 }
 
 /// Handling contract execution
@@ -44,17 +44,14 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::SkipDailyQuest { index } => {
-            execute_skip_daily_quest(deps.storage, info, index)
-        }
+        ExecuteMsg::SkipDailyQuest { index } => skip_daily_quest(deps.storage, info, index),
     }
 }
 
 /// Handling contract query
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
-    match msg {
-    }
+    match msg {}
 }
 
 /// Handling submessage reply.
@@ -65,15 +62,4 @@ pub fn reply(_deps: DepsMut, _env: Env, _msg: Reply) -> Result<Response, Contrac
     // See: https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#dispatching-messages
 
     todo!()
-}
-
-pub fn execute_skip_daily_quest(
-    _storage: &mut dyn Storage,
-    info: MessageInfo,
-    index: u8
-)  -> Result<Response, ContractError> {
-    Ok(Response::new()
-        .add_attribute("action", "skip_daily_quest")
-        .add_attribute("sender", info.sender)
-        .add_attribute("index", index.to_string()))
 }
