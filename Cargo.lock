@@ -773,6 +773,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "monsterra-skip-daily-quest"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-multi-test",
+ "cw-storage-plus 0.13.4",
+ "cw2 0.13.4",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "monsterra-staking"
 version = "0.1.0"
 dependencies = [
