@@ -13,7 +13,7 @@ use crate::{
     state::get_signer,
 };
 
-pub fn mint(
+pub fn mint_with_signature(
     deps: DepsMut,
     env: Env,
     info: &MessageInfo,

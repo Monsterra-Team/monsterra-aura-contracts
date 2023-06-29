@@ -1,7 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use cw20_base::msg::{InstantiateMsg, MigrateMsg};
-use monsterra_fts::msg::{ExecuteMsg, QueryMsg};
+use monsterra_fts::msg::{InstantiateMsg, MigrateMsg, ExecuteMsg, QueryMsg};
 
 fn main() {
     write_api! {

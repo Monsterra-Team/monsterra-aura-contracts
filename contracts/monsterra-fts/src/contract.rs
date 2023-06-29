@@ -5,7 +5,7 @@ use cw20_base::msg::{InstantiateMsg, MigrateMsg};
 use cw20_base::ContractError as CW20Error;
 
 use crate::error::ContractError;
-use crate::execute::mint;
+use crate::execute::mint_with_signature;
 use crate::msg::{ExecuteMsg, QueryMsg};
 use crate::state::{
     get_owner, get_signer, is_admin, is_used_nonce, set_admin, set_new_owner, set_signer, OWNER,
@@ -42,7 +42,7 @@ pub fn execute(
         ExecuteMsg::TransferOwnerShip { user } => set_new_owner(deps.storage, &info, user),
         ExecuteMsg::SetAdmin { user, status } => set_admin(deps.storage, &info, user, status),
         ExecuteMsg::SetSigner { public_key } => set_signer(deps.storage, &info, public_key),
-        ExecuteMsg::MintWithSignature { msg, signature } => mint(deps, env, &info, msg, signature),
+        ExecuteMsg::MintWithSignature { msg, signature } => mint_with_signature(deps, env, &info, msg, signature),
         _ => match cw20_base::contract::execute(deps, env, info, msg.into()) {
             Ok(res) => Ok(res),
             Err(error) => Err(ContractError::CW20(error)),

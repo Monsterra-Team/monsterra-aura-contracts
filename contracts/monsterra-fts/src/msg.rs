@@ -4,6 +4,13 @@ use cw20::Logo;
 use cw20_base::msg::{ExecuteMsg as CW20ExecuteMsg, QueryMsg as CW20ueryMsg};
 use cw_utils::Expiration;
 
+#[cw_serde]
+pub struct InstantiateMsg {}
+
+/// Message type for `migrate` entry_point
+#[cw_serde]
+pub enum MigrateMsg {}
+
 /// Message type for `execute` entry_point
 #[cw_serde]
 pub enum ExecuteMsg {
