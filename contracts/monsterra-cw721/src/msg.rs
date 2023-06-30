@@ -2,7 +2,6 @@ use cosmwasm_schema::cw_serde;
 use cosmwasm_schema::QueryResponses;
 use cosmwasm_std::Addr;
 use cosmwasm_std::Timestamp;
-use cw721_base::MinterResponse;
 use schemars::JsonSchema;
 
 use cosmwasm_std::Binary;
