@@ -1,5 +1,5 @@
 [package]
-name = "monsterra-tokens"
+name = "monsterra-cw20"
 version = "0.1.0"
 authors = ["Sotatek-HaiTrieu2 <hai.trieu2@sotatek.com>"]
 edition = "2021"
