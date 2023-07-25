@@ -1,6 +1,7 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Uint128, Binary};
 
+#[allow(unused_imports)]
 use crate::state::Swapdata;
 
 #[cw_serde]

@@ -3,6 +3,7 @@ use std::{u16, u32};
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, QuerierWrapper, Response, StdResult};
 
+#[allow(unused_imports)]
 use crate::state::ContractInfo;
 
 #[cw_serde]
@@ -12,9 +13,7 @@ pub enum QueryMsg {
     GamePaymentContractInfo {},
 
     #[returns(ContractSupportResponse)]
-    ContractSupportInfo {
-        contract_address: Addr,
-    },
+    ContractSupportInfo { contract_address: Addr },
 
     #[returns(bool)]
     IsTokenSupport {

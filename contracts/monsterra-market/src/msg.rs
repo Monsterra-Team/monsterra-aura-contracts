@@ -1,7 +1,11 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{Addr, Uint128};
 
-use crate::{state::{ContractInfo, Bid, Bundle, Order}, interfaces::ContractSupportResponse};
+#[allow(unused_imports)]
+use crate::{
+    interfaces::ContractSupportResponse,
+    state::{Bid, Bundle, ContractInfo, Order},
+};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -90,8 +94,11 @@ pub enum QueryMsg {
     BundleInfo { bundle_id: String },
 
     #[returns(ContractSupportResponse)]
-    ContractSupportInfo {contract_address: Addr},
+    ContractSupportInfo { contract_address: Addr },
 
     #[returns(bool)]
-    IsTokenSupport {contract_address: Addr, payment_contract: Addr},
+    IsTokenSupport {
+        contract_address: Addr,
+        payment_contract: Addr,
+    },
 }
