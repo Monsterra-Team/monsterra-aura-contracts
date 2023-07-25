@@ -649,7 +649,7 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
         if price <= Uint128::zero() {
             return Err(ContractError::InvalidPrice {});
         }
-        let mut different_price = Uint128::zero();
+        let different_price;
         let mut messages: Vec<CosmosMsg> = vec![];
         if bid.price > price {
             different_price = Uint128::sub(bid.price, price);

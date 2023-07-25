@@ -701,7 +701,43 @@ dependencies = [
 ]
 
 [[package]]
-name = "monsterra-fts"
+name = "monsterra-cw20"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-multi-test",
+ "cw-storage-plus 0.13.4",
+ "cw2 0.13.4",
+ "cw20",
+ "cw20-base",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "monsterra-cw721"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-multi-test",
+ "cw-ownable",
+ "cw-storage-plus 0.13.4",
+ "cw2 0.13.4",
+ "cw721 0.17.0",
+ "cw721-base 0.17.0",
+ "schemars",
+ "serde",
+ "sha2 0.10.7",
+ "thiserror",
+]
+
+[[package]]
+name = "monsterra-fungible-token"
 version = "0.1.0"
 dependencies = [
  "cosmwasm-schema",
@@ -754,25 +790,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "monsterra-nfts"
-version = "0.1.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "cw-multi-test",
- "cw-ownable",
- "cw-storage-plus 0.13.4",
- "cw2 0.13.4",
- "cw721 0.17.0",
- "cw721-base 0.17.0",
- "schemars",
- "serde",
- "sha2 0.10.7",
- "thiserror",
-]
-
-[[package]]
 name = "monsterra-skip-daily-quest"
 version = "0.1.0"
 dependencies = [
@@ -801,23 +818,6 @@ dependencies = [
  "schemars",
  "serde",
  "sha2 0.10.7",
- "thiserror",
-]
-
-[[package]]
-name = "monsterra-tokens"
-version = "0.1.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "cw-multi-test",
- "cw-storage-plus 0.13.4",
- "cw2 0.13.4",
- "cw20",
- "cw20-base",
- "schemars",
- "serde",
  "thiserror",
 ]
 
