@@ -69,6 +69,10 @@ pub enum ExecuteMsg {
     CancelBundle {
         bundle_id: String,
     },
+    UpdateBundle {
+        bundle_id: String,
+        price: Uint128
+    },
     UpdateBundleFee {
         bundle_fee: u16,
     },

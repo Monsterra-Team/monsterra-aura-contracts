@@ -15,7 +15,7 @@ use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg};
 use cw721::{Cw721ExecuteMsg, Cw721QueryMsg, OwnerOfResponse};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:game-market";
+const CONTRACT_NAME: &str = "crates.io:monsterra-market";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const ZOOM_FEE: u16 = 10000;
 
@@ -118,10 +118,13 @@ impl<'a> GameMarketContract<'a> {
             ExecuteMsg::BuyBundle { bundle_id } => self.buy_bundle(deps, env, info, bundle_id),
             ExecuteMsg::CancelBundle { bundle_id } => {
                 self.cancel_bundle(deps, env, info, bundle_id)
-            }
+            },
+            ExecuteMsg::UpdateBundle { bundle_id, price } => {
+                self.update_bundle(deps, info, bundle_id, price)
+            },
             ExecuteMsg::UpdateBundleFee { bundle_fee } => {
                 self.update_bundle_fee(deps, info, bundle_fee)
-            }
+            },
             ExecuteMsg::UpdateGameMarketPaymentContract {
                 game_market_payment_contract,
             } => self.update_game_market_payment_contract(deps, info, game_market_payment_contract),
@@ -234,6 +237,14 @@ pub trait GameMarketExecute {
         env: Env,
         info: MessageInfo,
         bundle_id: String,
+    ) -> Result<Response, Self::Err>;
+
+    fn update_bundle(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        bundle_id: String,
+        price: Uint128,
     ) -> Result<Response, Self::Err>;
 
     fn update_bundle_fee(
@@ -1038,6 +1049,30 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
             .add_messages(messages)
             .add_attribute("action", "cancel_bundle")
             .add_attribute("bundle_id", bundle_id))
+    }
+
+    fn update_bundle(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        bundle_id: String,
+        price: Uint128,
+    ) -> Result<Response, ContractError> {
+        let mut bundle = self.bundles.load(deps.storage, &bundle_id)?;
+        if !bundle.status {
+            return Err(ContractError::BundleCanceled {});
+        }
+        if bundle.owner != info.sender {
+            return Err(ContractError::NotOwner {});
+        }
+
+        bundle.price = price;
+        self.bundles.save(deps.storage, &bundle_id, &bundle)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "update_bundle")
+            .add_attribute("bundle_id", bundle_id)
+            .add_attribute("price", price))
     }
 
     fn update_bundle_fee(
