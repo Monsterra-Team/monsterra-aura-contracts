@@ -18,6 +18,8 @@ pub enum ExecuteMsg {
     SetAdmin {user: Addr, status: bool},
     SetAcceptedToken {token: String, status: bool},
     SetAcceptedDesToken {token:String, status: bool},
+    SetMaxSwapAmount {token:String, max_amount: Uint128},
+    SetApproveTransaction {transaction_id: String, status: bool},
     SetSigner {public_key: Binary},
     Mint {swap_message: SwapMessage, signature: Binary},
     Burn{swap_message: SwapMessage},
@@ -36,6 +38,10 @@ pub enum QueryMsg {
     IsAcceptedToken {token: String},
     #[returns(bool)]
     IsAcceptedDesToken {token: String},
+    #[returns(Uint128)]
+    GetMaxSwapAmount {token: String},
+    #[returns(Binary)]
+    IsApproveTransaction {transaction_id: String},
     #[returns(Binary)]
     GetSigner{},
     #[returns(Swapdata)]

@@ -20,6 +20,9 @@ pub enum ContractError {
     #[error("InvalidSwapData")]
     InvalidSwapData {},
 
+    #[error("ExceededMaxAmount")]
+    ExceededMaxAmount {},
+
     #[error("InvalidSignature")]
     InvalidSignature {},
 
