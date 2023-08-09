@@ -11,9 +11,9 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, SwapMessage};
 use crate::state::{
     get_max_swap_amount, get_owner, get_signer, get_swap_data, is_accepted_des_token,
-    is_accepted_token, is_admin, is_approve_transaction, set_accepted_des_token,
+    is_accepted_token, is_admin, is_approve_transaction, is_operator, set_accepted_des_token,
     set_accepted_token, set_admin, set_approve_transaction, set_max_swap_amount, set_new_owner,
-    set_signer, set_swap_data, Swapdata, OWNER,
+    set_operator, set_signer, set_swap_data, Swapdata, OWNER,
 };
 use sha2::{Digest, Sha256};
 
@@ -54,6 +54,9 @@ pub fn execute(
     match msg {
         ExecuteMsg::TransferOwnerShip { user } => try_transfer_ownership(deps.storage, info, user),
         ExecuteMsg::SetAdmin { user, status } => try_set_admin(deps.storage, info, user, status),
+        ExecuteMsg::SetOperator { operator, status } => {
+            try_set_operator(deps.storage, info, operator, status)
+        }
         ExecuteMsg::SetAcceptedToken { token, status } => {
             try_set_accepted_token(deps.storage, info, token, status)
         }
@@ -91,6 +94,15 @@ pub fn try_set_admin(
     status: bool,
 ) -> Result<Response, ContractError> {
     set_admin(storage, &info, user, status)
+}
+
+pub fn try_set_operator(
+    storage: &mut dyn Storage,
+    info: MessageInfo,
+    operator: Addr,
+    status: bool,
+) -> Result<Response, ContractError> {
+    set_operator(storage, &info, operator, status)
 }
 
 pub fn try_set_accepted_token(
@@ -297,6 +309,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetOwner {} => to_binary(&query_owner(deps.storage)),
         QueryMsg::IsAdmin { user } => to_binary(&query_admin(deps.storage, user)),
+        QueryMsg::IsOperator { operator } => to_binary(&query_operator(deps.storage, operator)),
         QueryMsg::GetSigner {} => to_binary(&query_signer(deps.storage)),
         QueryMsg::IsAcceptedToken { token } => {
             to_binary(&query_accepted_token(deps.storage, token))
@@ -328,6 +341,10 @@ fn query_owner(storage: &dyn Storage) -> Addr {
 
 fn query_admin(storage: &dyn Storage, user: Addr) -> bool {
     is_admin(storage, user)
+}
+
+fn query_operator(storage: &dyn Storage, operator: Addr) -> bool {
+    is_operator(storage, operator)
 }
 
 fn query_signer(storage: &dyn Storage) -> Binary {

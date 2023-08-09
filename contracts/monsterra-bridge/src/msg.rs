@@ -16,6 +16,7 @@ pub struct MigrateMsg {}
 pub enum ExecuteMsg {
     TransferOwnerShip {user: Addr},
     SetAdmin {user: Addr, status: bool},
+    SetOperator {operator: Addr, status: bool},
     SetAcceptedToken {token: String, status: bool},
     SetAcceptedDesToken {token:String, status: bool},
     SetMaxSwapAmount {token:String, max_amount: Uint128},
@@ -34,6 +35,8 @@ pub enum QueryMsg {
     GetOwner {},
     #[returns(bool)]
     IsAdmin {user: Addr},
+    #[returns(bool)]
+    IsOperator {operator: Addr},
     #[returns(bool)]
     IsAcceptedToken {token: String},
     #[returns(bool)]

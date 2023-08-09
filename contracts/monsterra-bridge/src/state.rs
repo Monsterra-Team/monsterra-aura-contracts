@@ -227,7 +227,7 @@ pub fn set_approve_transaction(
     transaction_id: String,
     status: bool,
 ) -> Result<Response, ContractError> {
-    if !is_admin(storage, info.sender.clone()) {
+    if !is_operator(storage, info.sender.clone()) {
         return Err(ContractError::Unauthorized {});
     }
 
@@ -250,6 +250,34 @@ pub fn is_approve_transaction(storage: &dyn Storage, transaction_id: &String) ->
     }
 }
 
+pub fn set_operator(
+    storage: &mut dyn Storage,
+    info: &MessageInfo,
+    operator: Addr,
+    status: bool,
+) -> Result<Response, ContractError> {
+    if !is_admin(storage, info.sender.clone()) {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    let result = OPERATORS.save(storage, operator.clone(), &status);
+    match result {
+        Ok(_) => Ok(Response::new()
+            .add_attribute("method", "set_operator")
+            .add_attribute("operator", operator.to_string())
+            .add_attribute("status", status.to_string())),
+        Err(_) => Err(ContractError::Internal {}),
+    }
+}
+
+pub fn is_operator(storage: &dyn Storage, operator: Addr) -> bool {
+    let result: Result<bool, cosmwasm_std::StdError> = OPERATORS.load(storage, operator);
+    match result {
+        Ok(value) => value,
+        Err(_) => false,
+    }
+}
+
 pub const OWNER: Item<Addr> = Item::new("owner");
 pub const ADMIN: Map<Addr, bool> = Map::new("admin");
 pub const SIGNER: Item<Binary> = Item::new("signer");
@@ -259,3 +287,4 @@ pub const ACCEPTED_TOKENS: Map<String, bool> = Map::new("acceptedToken");
 pub const DES_ACCEPTED_TOKENS: Map<String, bool> = Map::new("desAcceptedToken");
 pub const MAX_SWAP_AMOUNTS: Map<String, Uint128> = Map::new("maxSwapAmounts");
 pub const APPROVED_TRANSACTIONS: Map<String, bool> = Map::new("approvedTransactions");
+pub const OPERATORS: Map<Addr, bool> = Map::new("operators");
