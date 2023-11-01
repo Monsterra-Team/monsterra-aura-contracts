@@ -10,6 +10,7 @@ use cw721::Expiration;
 use cw721_base::ExecuteMsg as CW721ExecuteMsg;
 use cw721_base::InstantiateMsg as CW721InstantiateMsg;
 use cw721_base::QueryMsg as CW721QueryMsg;
+pub use cw721_base::{ContractError, Cw721Contract, MinterResponse};
 
 #[cw_serde]
 pub struct MonsterraNFTInstantiateMsg {
