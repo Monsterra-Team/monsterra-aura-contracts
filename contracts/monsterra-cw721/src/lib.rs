@@ -12,7 +12,7 @@ use cosmwasm_std::{Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, Std
 use cw721_base::Extension;
 pub use cw721_base::{ContractError, Cw721Contract, MinterResponse};
 
-use execute::{mint_batch, mint_batch_with_signature, stake_batch};
+use execute::{internal_mint, mint_batch, mint_batch_with_signature, stake_batch};
 use query::nft_info;
 
 use error::MonsterraNFTError;
@@ -35,6 +35,8 @@ pub type InstantiateMsg = crate::msg::MonsterraNFTInstantiateMsg;
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
+    use crate::execute::internal_transfer_nft;
+
     use super::*;
 
     // This is a simple type to let us handle empty extensions
@@ -73,6 +75,24 @@ pub mod entry {
             ExecuteMsg::SetAdmin { user, status } => set_admin(deps.storage, &info, user, status),
             ExecuteMsg::SetSigner { public_key } => set_signer(deps.storage, &info, public_key),
             ExecuteMsg::SetBaseUri { base_uri } => set_base_uri(deps.storage, &info, base_uri),
+            ExecuteMsg::InternalMint { msg } => {
+                // only the contract itself can call this
+                if info.sender != env.contract.address {
+                    return Err(MonsterraNFTError::Unauthorized {});
+                }
+                internal_mint(deps, env, info, msg)
+            }
+            ExecuteMsg::InternalTransfer {
+                sender,
+                recipient,
+                token_id,
+            } => {
+                // only the contract itself can call this
+                if info.sender != env.contract.address {
+                    return Err(MonsterraNFTError::Unauthorized {});
+                }
+                internal_transfer_nft(deps, env, info, sender, recipient, token_id)
+            }
             _ => match MonsterraNFT::default().execute(deps, env, info, msg.into()) {
                 Ok(result) => Ok(result),
                 Err(error) => Err(MonsterraNFTError::CW721(error)),

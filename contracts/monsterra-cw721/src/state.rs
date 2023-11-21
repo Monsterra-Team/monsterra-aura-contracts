@@ -40,10 +40,7 @@ pub fn set_admin(
 
 pub fn is_admin(storage: &dyn Storage, user: Addr) -> bool {
     let result = ADMIN.load(storage, user);
-    match result {
-        Ok(value) => value,
-        Err(_) => false,
-    }
+    result.unwrap_or(false)
 }
 
 pub fn set_signer(
@@ -92,10 +89,7 @@ pub fn set_used_nonce(
 
 pub fn is_used_nonce(storage: &dyn Storage, nonce: String) -> bool {
     let result = USED_NONCES.load(storage, nonce);
-    match result {
-        Ok(value) => value,
-        Err(_) => false,
-    }
+    result.unwrap_or(false)
 }
 
 pub fn set_base_uri(
