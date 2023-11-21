@@ -7,6 +7,7 @@ use schemars::JsonSchema;
 use cosmwasm_std::Binary;
 use cw721::Expiration;
 
+use crate::Extension;
 use cw721_base::ExecuteMsg as CW721ExecuteMsg;
 use cw721_base::InstantiateMsg as CW721InstantiateMsg;
 use cw721_base::QueryMsg as CW721QueryMsg;
@@ -30,17 +31,16 @@ pub struct MonsterraNFTInstantiateMsg {
 
 impl From<MonsterraNFTInstantiateMsg> for CW721InstantiateMsg {
     fn from(msg: MonsterraNFTInstantiateMsg) -> CW721InstantiateMsg {
-        match msg {
-            MonsterraNFTInstantiateMsg {
-                name,
-                symbol,
-                minter,
-                base_uri: _,
-            } => CW721InstantiateMsg {
-                name,
-                symbol,
-                minter,
-            },
+        let MonsterraNFTInstantiateMsg {
+            name,
+            symbol,
+            minter,
+            base_uri: _,
+        } = msg;
+        CW721InstantiateMsg {
+            name,
+            symbol,
+            minter,
         }
     }
 }
@@ -130,6 +130,18 @@ pub enum MonsterraNFTExecuteMsg<T, E> {
 
     SetBaseUri {
         base_uri: String,
+    },
+
+    // An internal message for batch minting
+    InternalMint {
+        msg: MintMsg<Extension>,
+    },
+
+    // An internal message for nft stake
+    InternalTransfer {
+        sender: String,
+        recipient: String,
+        token_id: String,
     },
 }
 
