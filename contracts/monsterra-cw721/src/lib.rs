@@ -33,6 +33,10 @@ pub type QueryMsg = crate::msg::MonsterraNFTQueryMsg<Empty>;
 pub type MigrateMsg = crate::msg::MonsterraNFTMigrateMsg;
 pub type InstantiateMsg = crate::msg::MonsterraNFTInstantiateMsg;
 
+// Version info for migration
+pub const CONTRACT_NAME: &str = "crates.io:monsterra-cw721";
+pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[cfg(not(feature = "library"))]
 pub mod entry {
     use crate::execute::internal_transfer_nft;
@@ -49,6 +53,7 @@ pub mod entry {
         info: MessageInfo,
         msg: InstantiateMsg,
     ) -> Result<Response, MonsterraNFTError> {
+        cw2::set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
         let base_uri = msg.base_uri.clone();
         let res = MonsterraNFT::default().instantiate(deps.branch(), env, info.clone(), msg.into());
         set_admin(deps.storage, &info, info.sender.clone(), true)?;
