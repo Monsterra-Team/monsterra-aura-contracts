@@ -9,7 +9,7 @@ use crate::{
     msg::{UnstakeMsg, UnstakePayload},
     state::{
         get_signer, get_total_staked, is_accepted_token, is_used_nonce, set_accepted_token,
-        set_admin, set_new_owner, set_signer, set_staked_data, set_total_staked, set_used_nonce,
+        set_admin, set_new_owner, set_signer, set_staked_data, set_total_staked, set_used_nonce, is_admin,
         StakeData,
     },
     ContractError,
@@ -161,6 +161,36 @@ pub fn execute_unstake(
             ("sender", info.sender.to_string()),
             ("token", msg.token.to_string()),
             ("amount", msg.amount.to_string()),
+        ]))
+}
+
+pub fn execute_burn(
+    storage: &mut dyn Storage,
+    env: Env,
+    info: MessageInfo,
+    token: Addr,
+    amount: Uint128
+) -> Result<Response, ContractError> {
+    if !is_admin(storage, info.sender.clone()) {
+        return Err(ContractError::Unauthorized {});
+    }
+    let mut messages: Vec<CosmosMsg> = vec![];
+    messages.push(CosmosMsg::Wasm(WasmMsg::Execute {
+        contract_addr: token.to_string(),
+        msg: to_binary(&Cw20ExecuteMsg::BurnFrom {
+            owner: env.contract.address.to_string(),
+            amount,
+        })?,
+        funds: vec![],
+    }));
+
+    Ok(Response::new()
+        .add_messages(messages)
+        .add_attribute("method", "stake")
+        .add_attributes(vec![
+            ("sender", info.sender.to_string()),
+            ("token", token.to_string()),
+            ("amount", amount.to_string()),
         ]))
 }
 

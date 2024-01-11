@@ -79,6 +79,14 @@ pub enum ExecuteMsg {
     UpdateGameMarketPaymentContract {
         game_market_payment_contract: Addr,
     },
+    WithdrawFund {
+        user: Addr,
+        token_address: Addr,
+        amount: Uint128
+    },
+    TransferOwnerShip {
+        user: Addr
+    }
 }
 
 #[cw_serde]

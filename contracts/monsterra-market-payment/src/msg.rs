@@ -33,6 +33,9 @@ pub enum ExecuteMsg {
     RemoveContractSupport {
         contract_address: Addr,
     },
+    TransferOwnerShip {
+        user: Addr
+    }
 }
 
 #[cw_serde]

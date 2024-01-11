@@ -8,7 +8,7 @@ use cw2::set_contract_version;
 use crate::error::ContractError;
 use crate::execute::{
     execute_set_accepted_token, execute_set_admin, execute_set_signer, execute_stake,
-    execute_transfer_ownership, execute_unstake,
+    execute_transfer_ownership, execute_unstake, execute_burn
 };
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::query::{
@@ -81,6 +81,7 @@ pub fn execute(
             duration,
         } => execute_stake(deps.storage, env, info, &token, amount, duration),
         ExecuteMsg::Unstake { msg, signature } => execute_unstake(deps, env, info, msg, signature),
+        ExecuteMsg::Burn { token, amount } => execute_burn(deps.storage, env, info, token, amount),
     }
 }
 

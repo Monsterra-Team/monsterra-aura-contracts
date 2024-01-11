@@ -16,6 +16,8 @@ pub type Extension = Option<Empty>;
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
+    use crate::msg::MigrateMsg;
+
     use super::*;
 
     use cosmwasm_std::entry_point;
@@ -48,5 +50,11 @@ pub mod entry {
     pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         let tract = GameMarketContract::default();
         tract.query(deps, env, msg)
+    }
+
+    #[entry_point]
+    pub fn migrate(deps: DepsMut, env: Env, msg: MigrateMsg) -> StdResult<Response> {
+        let tract = GameMarketContract::default();
+        tract.migrate(deps, env, msg)
     }
 }

@@ -33,6 +33,10 @@ pub enum ExecuteMsg {
         msg: UnstakeMsg,
         signature: Binary,
     },
+    Burn {
+        token: Addr,
+        amount: Uint128,
+    },
 }
 
 #[cw_serde]

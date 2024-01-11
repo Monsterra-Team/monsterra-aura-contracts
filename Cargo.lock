@@ -777,7 +777,7 @@ dependencies = [
 
 [[package]]
 name = "monsterra-market"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -794,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "monsterra-market-payment"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -825,7 +825,7 @@ dependencies = [
 
 [[package]]
 name = "monsterra-staking"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",

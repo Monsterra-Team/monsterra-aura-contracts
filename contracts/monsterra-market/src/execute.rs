@@ -9,7 +9,7 @@ use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::interfaces::{ContractSupportResponse, QueryMsg::*};
-use crate::msg::{ExecuteMsg, InstantiateMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg};
 use crate::state::{Bid, Bundle, ContractInfo, GameMarketContract, Order};
 use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg};
 use cw721::{Cw721ExecuteMsg, Cw721QueryMsg, OwnerOfResponse};
@@ -24,7 +24,7 @@ impl<'a> GameMarketContract<'a> {
         &self,
         deps: DepsMut,
         _env: Env,
-        _info: MessageInfo,
+        info: MessageInfo,
         msg: InstantiateMsg,
     ) -> StdResult<Response> {
         set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
@@ -32,7 +32,7 @@ impl<'a> GameMarketContract<'a> {
         let contract_info = ContractInfo {
             name: msg.name,
             symbol: msg.symbol,
-            owner: _info.sender.clone(),
+            owner: info.sender.clone(),
             total_order: 0,
             total_bid: 0,
             total_bundle: 0,
@@ -40,6 +40,10 @@ impl<'a> GameMarketContract<'a> {
             game_market_payment_contract: msg.game_market_payment_contract,
         };
         self.contract_info.save(deps.storage, &contract_info)?;
+        Ok(Response::default())
+    }
+
+    pub fn migrate(&self, _deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
         Ok(Response::default())
     }
 
@@ -118,16 +122,22 @@ impl<'a> GameMarketContract<'a> {
             ExecuteMsg::BuyBundle { bundle_id } => self.buy_bundle(deps, env, info, bundle_id),
             ExecuteMsg::CancelBundle { bundle_id } => {
                 self.cancel_bundle(deps, env, info, bundle_id)
-            },
+            }
             ExecuteMsg::UpdateBundle { bundle_id, price } => {
                 self.update_bundle(deps, info, bundle_id, price)
-            },
+            }
             ExecuteMsg::UpdateBundleFee { bundle_fee } => {
                 self.update_bundle_fee(deps, info, bundle_fee)
-            },
+            }
             ExecuteMsg::UpdateGameMarketPaymentContract {
                 game_market_payment_contract,
             } => self.update_game_market_payment_contract(deps, info, game_market_payment_contract),
+            ExecuteMsg::WithdrawFund {
+                user,
+                token_address,
+                amount,
+            } => self.withdraw_fund(deps, info, user, token_address, amount),
+            ExecuteMsg::TransferOwnerShip { user } => self.set_new_owner(deps, info, user),
         }
     }
 }
@@ -260,6 +270,22 @@ pub trait GameMarketExecute {
         info: MessageInfo,
         game_market_payment_contract: Addr,
     ) -> Result<Response, Self::Err>;
+
+    fn withdraw_fund(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        user: Addr,
+        token_address: Addr,
+        amount: Uint128,
+    ) -> Result<Response, Self::Err>;
+
+    fn set_new_owner(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        user: Addr,
+    ) -> Result<Response, ContractError>;
 }
 
 impl<'a> GameMarketExecute for GameMarketContract<'a> {
@@ -1078,10 +1104,13 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn update_bundle_fee(
         &self,
         deps: DepsMut,
-        _info: MessageInfo,
+        info: MessageInfo,
         bundle_fee: u16,
     ) -> Result<Response, ContractError> {
         let mut contract_info = self.contract_info.load(deps.storage)?;
+        if contract_info.owner != info.sender.clone() {
+            return Err(ContractError::Unauthorized {});
+        }
         contract_info.bundle_fee = bundle_fee;
         self.contract_info.save(deps.storage, &contract_info)?;
         Ok(Response::new().add_attribute("action", "update_bundle_fee"))
@@ -1090,13 +1119,65 @@ impl<'a> GameMarketExecute for GameMarketContract<'a> {
     fn update_game_market_payment_contract(
         &self,
         deps: DepsMut,
-        _info: MessageInfo,
+        info: MessageInfo,
         game_market_payment_contract: Addr,
     ) -> Result<Response, ContractError> {
         let mut contract_info = self.contract_info.load(deps.storage)?;
+        if contract_info.owner != info.sender.clone() {
+            return Err(ContractError::Unauthorized {});
+        }
         contract_info.game_market_payment_contract = game_market_payment_contract;
         self.contract_info.save(deps.storage, &contract_info)?;
         Ok(Response::new().add_attribute("action", "update_game_market_payment_contract"))
+    }
+
+    fn withdraw_fund(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        user: Addr,
+        token_address: Addr,
+        amount: Uint128,
+    ) -> Result<Response, ContractError> {
+        let contract_info = self.contract_info.load(deps.storage)?;
+        if contract_info.owner != info.sender.clone() {
+            return Err(ContractError::Unauthorized {});
+        }
+        let mut messages: Vec<CosmosMsg> = vec![];
+
+        messages.push(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: token_address.to_string(),
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: user.to_string(),
+                amount: amount,
+            })?,
+            funds: vec![],
+        }));
+
+        Ok(Response::new()
+            .add_messages(messages)
+            .add_attribute("action", "withdraw_fund")
+            .add_attribute("amount", amount))
+    }
+
+    fn set_new_owner(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        user: Addr,
+    ) -> Result<Response, ContractError> {
+        let mut contract_info = self.contract_info.load(deps.storage)?;
+        if contract_info.owner != info.sender.clone() {
+            return Err(ContractError::Unauthorized {});
+        }
+
+        contract_info.owner = user.clone();
+
+        self.contract_info.save(deps.storage, &contract_info)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "tranfer_ownership")
+            .add_attribute("owner", user.clone()))
     }
 }
 
